@@ -3,7 +3,24 @@
 @section('title', 'Student List')
 
 @section('content')
-    <h2>Student List</h2>
+
+<nav class="navbar bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand">STD</a>
+    <h3>Student List</h3>
+    <form class="d-flex" role="search">
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
+        Add Students
+    </button>
+    <form method="POST" action="{{ route('logout') }}">
+      @csrf
+      <button type="submit" class="btn btn-primary">
+          Log out
+      </button>
+  </form>  
+    </form>
+  </div>
+</nav>
 
     @if(session('success'))
         <div style="color: green;">
@@ -11,13 +28,9 @@
         </div>
     @endif
     <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
-        Add Students
-    </button>
-
     <div class="row">
         <div class="col-12">
-            <h1>WEB-DEV ACTIVITY</h1>
+            <h4>Students: </h4>
             <table class="table">
                 <thead>
                     <tr>
