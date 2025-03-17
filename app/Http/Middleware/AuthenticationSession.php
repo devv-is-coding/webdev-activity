@@ -6,15 +6,21 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 class AuthenticationSession
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::user()) {
-            return redirect()-> route('login')->with('error', 'You must be logged in first.');
+        if(!Session::has('loginId')) {
+            if(Auth::check()) {
+                Session::put('loginId', Auth::user()->id);
+            } else {
+                return redirect('/login')->with('error', 'Please login first');
+            }
         }
         return $next($request);
     }
+
 }
+

@@ -6,12 +6,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 
 
 class AuthController extends Controller
 {
     public function showLoginForm() {
+        if(Session::has('loginId')) {
+            return redirect()->route('dashboard');
+        }
         return view('auth.login');
     }
 
@@ -19,17 +22,26 @@ class AuthController extends Controller
         return view('auth.register');
     }
     public function login(Request $request){
-        $request->session()->flush();
-        $credentials = $request->only('email', 'password');
-    
-        if (Auth::attempt($credentials)) {
-           $request->session()->regenerate();
-           return redirect()->route('dashboard')->with('success', 'Logged in successfully');
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string'
+        ]);
+        $credentials = User::where('email', $request->email)->first();
+        if ($credentials && Hash::check($request->password, $credentials->password)) {
+            Auth::login($credentials);
+            Session::put('loginId', $credentials->id); {
+            Session::regenerate();
+            return redirect()->route('dashboard')->with('success', 'Logged in successfully');
         }
-        return back()->withErrors(['email' => 'Invalid email or password'])->withInput($request->only('email'));
+        return back()->with('error', 'Invalid credentials');
     }
-
+}
     public function register(Request $request){
+        if(Session::has('loginId')) {
+            return redirect()->route('dashboard');
+        }
+        return view('auth.register');
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -40,14 +52,22 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password)
         ]);
-        return redirect('/login')->with('success', 'Account created successfully');
+        return redirect()->route('login')->with('success', 'Account created successfully');
     }
-    public function logout(Request $request){
+    public function logout(Request $request)
+{
+    if (Session::has('loginId')) {
+        Session::flush();
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'Logged out successfully');
+        return redirect()->route('auth.index')->with('success', 'Logged out successfully');
     }
+
+    return redirect()->route('auth.index')->with('error', 'You are not logged in');
+}
+
 }
 

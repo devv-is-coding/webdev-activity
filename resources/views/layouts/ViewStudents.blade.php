@@ -12,11 +12,9 @@
       <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStudentModal">
         Add Students
     </button>
-    <form method="POST" action="{{ route('logout') }}">
+    <form action="{{ route('logout') }}" method="POST">
       @csrf
-      <button type="submit" class="btn btn-primary">
-          Log out
-      </button>
+      <button type="submit">Logout</button>
   </form>  
     </form>
   </div>
