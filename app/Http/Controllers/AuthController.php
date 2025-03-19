@@ -57,17 +57,14 @@ class AuthController extends Controller
     public function logout(Request $request)
 {
     if (Session::has('loginId')) {
-        Session::flush();
         Auth::logout();
-
+        Session::pull('loginId');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        return redirect()->route('auth.index')->with('success', 'Logged out successfully');
+        $request->session()->flush();
+        return redirect()->route('login')->with('success', 'Logged out successfully');
     }
-
-    return redirect()->route('auth.index')->with('error', 'You are not logged in');
+    return redirect()->route('login')->with('error', 'You are not logged in');
 }
-
 }
 
